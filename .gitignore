@@ -19,7 +19,6 @@
 # This is where Go package dependencies are installed.
 # It is recommended to keep this directory in source control.
 # Comment this out if you plan to use modules instead of GOPATH.
-# To create an ignore rule for the module cache, see the bottom of this file.
 #vendor/
 
 # Uncomment the following line if you're not using modules
@@ -46,3 +45,6 @@ myapp
 
 # Log files
 *.log
+
+# .env file
+.env
