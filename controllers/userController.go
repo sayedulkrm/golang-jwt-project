@@ -13,6 +13,7 @@ import (
 	"github.com/sayedulkrm/golang-jwt-project/helpers"
 	"github.com/sayedulkrm/golang-jwt-project/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -46,7 +47,7 @@ func Register() gin.HandlerFunc {
 			return
 		}
 
-		count, err := userCollection.CountDocuments(ctx, bson.M{"email": user.Email})
+		emailCount, err := userCollection.CountDocuments(ctx, bson.M{"email": user.Email})
 
 		defer cancel()
 
@@ -56,7 +57,7 @@ func Register() gin.HandlerFunc {
 			return
 		}
 
-		count, err = userCollection.CountDocuments(ctx, bson.M{"phone": user.Phone})
+		phoneCount, err := userCollection.CountDocuments(ctx, bson.M{"phone": user.Phone})
 
 		defer cancel()
 
@@ -66,12 +67,41 @@ func Register() gin.HandlerFunc {
 			return
 		}
 
-		if count > 0 {
+		if emailCount > 0 || phoneCount > 0 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User already exists"})
 			return
 		}
 
 		// start from here
+
+		user.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		user.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		user.ID = primitive.NewObjectID()
+		user.User_id = user.ID.Hex()
+
+		token, refreshToken, err := helpers.GenerateAllTokens(user.Email, user.FirstName, user.LastName, user.User_type, user.User_id)
+
+		if err != nil {
+			log.Panic(err) // Or handle the error in a way suitable for your application
+		}
+
+		user.Token = token
+		user.Refresh_token = refreshToken
+
+		resultInsertionNumber, insertErr := userCollection.InsertOne(ctx, user)
+
+		if insertErr != nil {
+			msg := fmt.Sprintf("Error: User not created %v", insertErr)
+
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+			return
+		}
+
+		defer cancel()
+
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "User created successfully", "user_Id": resultInsertionNumber.InsertedID})
+
+		// c.JSON(http.StatusOK, resultInsertionNumber)
 
 	}
 
