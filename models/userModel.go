@@ -9,7 +9,7 @@ import (
 // Go lang doesnt understand JSON, But MongoDB understands JSON. So the struct is a helper or a bridge to Mongo DB and Go lang
 
 type User struct {
-	ID primitive.ObjectID `bson:"_id"`
+	ID primitive.ObjectID `bson:"_id" json:"_id"`
 
 	// Id          string  `json:"_id,omitempty" bson:"_id,omitempty"`
 	FirstName     string    `json:"first_name" validate:"required,min=2,max=100"`

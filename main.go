@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	routes "github.com/sayedulkrm/golang-jwt-project/routes"
 )
@@ -19,6 +20,14 @@ func main() {
 	}
 
 	router := gin.New()
+
+	// Customize CORS settings
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{os.Getenv("FRONTEND_URL")} // Allow specific origin
+	corsConfig.AllowCredentials = true                            // Allow credentials (e.g., cookies)
+	corsConfig.AllowMethods = []string{"GET", "PUT", "POST", "DELETE"}
+
+	router.Use(cors.New(corsConfig))
 
 	router.Use(gin.Logger())
 

@@ -12,6 +12,9 @@ import (
 func CheckUserType(c *gin.Context, role string) (err error) {
 	userType := c.GetString("user_type")
 
+	fmt.Println("Heyyyyy am from auth helper userType", userType)
+	fmt.Println("Heyyyyy am from auth helper role", role)
+
 	err = nil
 
 	if userType != role {
